@@ -16,7 +16,7 @@ def getResults(startDate, endDate, track):
     baseUrl = "https://www.igb.ie/results"
 
     # Find meetings
-    pageresults = 1
+    pageresults = 8
     meetingDate = [] # Store all meeting dates in a list
     csvfile = open('race_results.csv', 'w')
     writer = csv.writer(csvfile, delimiter=',', lineterminator='\n', quotechar='"')
@@ -53,14 +53,13 @@ def getResults(startDate, endDate, track):
         rurl = f"{baseUrl}/view-results/?track={track}&date={m}"
         print(rurl)
         racePage = requests.get(rurl)
-        raceSoup = BeautifulSoup(racePage.content, "html.parser")
+        raceSoup = BeautifulSoup(racePage.content, "lxml")
         # Race Date
         # Race Name
         raceTitle = []
         raceHead = raceSoup.find_all("div", {"class": "col-16 clearfix race-heading"})
         for h in raceHead:
-            title = h.find("h4")
-            #titleText = title.get_text(strip=True)
+            title = h.find("h4").get_text(strip=True)
             raceTitle.append(title)
         # Race Result
         raceTables = raceSoup.find_all("div", {"class": "col-16 clearfix"})
@@ -74,7 +73,7 @@ def getResults(startDate, endDate, track):
                     cols = rows.find_all(['th', 'td'])  # Find all the <th> or <td> columns inside each row.
                     m = ""
                     race = r
-                    distance = "re.search('Flat \d+', r).group(0).replace('Flat', '')"
+                    distance = re.search('Flat \d+', r).group(0).replace('Flat', '')
                     position = cols[0].text
                     trapStage = cols[1].find('img')
                     trap = trapStage['alt'].replace('Trap ', '')
