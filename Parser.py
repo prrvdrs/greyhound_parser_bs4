@@ -71,7 +71,7 @@ def getResults(startDate, endDate, track):
                 # for r in raceTitle:
                 for rows in rowTables[1:]:
                     cols = rows.find_all(['th', 'td'])  # Find all the <th> or <td> columns inside each row.
-                    m = ""
+                    date = m
                     race = r
                     distance = re.search('Flat \d+', r).group(0).replace('Flat', '')
                     position = cols[0].text
@@ -89,7 +89,7 @@ def getResults(startDate, endDate, track):
                     spread = ""
                     grade = cols[12].text
                     comm = cols[13].text
-                    writer.writerow([m, race, distance, position, trap, greyhoundName, sireName, damName, prize,
+                    writer.writerow([date, race, distance, position, trap, greyhoundName, sireName, damName, prize,
                                      weight, winTime, byLenght, going, estTime, spread, grade, comm])
             time.sleep(2)
         else:
