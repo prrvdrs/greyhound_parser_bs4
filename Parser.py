@@ -16,7 +16,8 @@ def getResults(startDate, endDate, track):
     baseUrl = "https://www.igb.ie/results"
 
     # Find meetings
-    pageresults = 8
+    pageresults = 1
+    meetingLocation = []
     meetingDate = [] # Store all meeting dates in a list
     csvfile = open('race_results.csv', 'w')
     writer = csv.writer(csvfile, delimiter=',', lineterminator='\n', quotechar='"')
@@ -35,7 +36,9 @@ def getResults(startDate, endDate, track):
                 trs = meetingtable.find_all("tr")
                 for rows in trs[1:]:
                     cols = rows.find_all(['th', 'td'])  # find all the <th> or <td> columns inside each row
+                    location = cols[0].get_text(strip=True)
                     meeting = cols[1].get_text(strip=True)
+                    meetingLocation.append(location)
                     meetingDate.append(meeting.replace(' ','-'))
                     #writer.writerow([meeting])
                 time.sleep(2)  # limit requests per second.
@@ -47,9 +50,9 @@ def getResults(startDate, endDate, track):
     # Get results of meetings
     csvfile = open('race_results.csv', 'w')
     writer = csv.writer(csvfile, delimiter=',', lineterminator='\n', quotechar='"')
-    writer.writerow(["Date", "RaceTitle", "Distance", "Position", "Trap", "GreyhoundName", "SireName", "DamName",
+    writer.writerow(["Date", "Track","Location" ,"RaceTitle", "Distance", "Position", "Trap", "GreyhoundName", "SireName", "DamName",
                      "Prize", "Weight", "WinTime", "ByLenght", "Going", "EstTime", "Spread", "Grade", "Comm"])
-    for m in meetingDate:
+    for m, l in zip(meetingDate, meetingLocation):
         rurl = f"{baseUrl}/view-results/?track={track}&date={m}"
         print(rurl)
         racePage = requests.get(rurl)
@@ -72,6 +75,8 @@ def getResults(startDate, endDate, track):
                 for rows in rowTables[1:]:
                     cols = rows.find_all(['th', 'td'])  # Find all the <th> or <td> columns inside each row.
                     date = m
+                    rtrack = "track"
+                    location= l
                     race = r
                     distance = re.search('Flat \d+', r).group(0).replace('Flat', '')
                     position = cols[0].text
@@ -89,7 +94,7 @@ def getResults(startDate, endDate, track):
                     spread = ""
                     grade = cols[12].text
                     comm = cols[13].text
-                    writer.writerow([date, race, distance, position, trap, greyhoundName, sireName, damName, prize,
+                    writer.writerow([date, rtrack, location, race, distance, position, trap, greyhoundName, sireName, damName, prize,
                                      weight, winTime, byLenght, going, estTime, spread, grade, comm])
             time.sleep(2)
         else:
