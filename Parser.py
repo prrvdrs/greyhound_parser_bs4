@@ -9,20 +9,37 @@ import re
 # Search Configuration
 startDate   = "01-Jan-2018"
 endDate     = "31-Dec-2018"
-track       = "SPK" # Empty String for all tracks => "")
+track       = "" # SPK or Empty String for all tracks)
 
 # Get results
 def getResults(startDate, endDate, track):
     baseUrl = "https://www.igb.ie/results"
-
-    # Find meetings
-    pageresults = 1
+    pageresults = 73
     meetingLocation = []
     meetingDate = [] # Store all meeting dates in a list
-    csvfile = open('race_results.csv', 'w')
-    writer = csv.writer(csvfile, delimiter=',', lineterminator='\n', quotechar='"')
-    writer.writerow(["Date","Race","Position", "Trap", "GreyhoundName","SireName", "DamName",
-                     "Prize", "Weight", "WinTime", "By", "Going", "EstTime", "Spread","Grade", "Comm"])
+    meetingTrack = {"Derry": "DRY",
+                    "Drumbo Park": "DBP",
+                    "Dundalk": "DLK",
+                    "Enniscorthy": "ECY",
+                    "Galway": "GLY",
+                    "Harolds Cross": "HRX",
+                    "Kilkenny": "KKY",
+                    "Lifford": "LFD",
+                    "Limerick": "LMK",
+                    "Longford": "LGD",
+                    "Mullingar": "MGR",
+                    "Newbridge": "NWB",
+                    "Shelbourne Park": "SPK",
+                    "Thurles Park": "THR",
+                    "Tralee": "TRL",
+                    "Tralee Sat Evening": "TRS",
+                    "Waterford": "WFD",
+                    "Youghal": "YGL"}
+    #csvfile = open('race_results.csv', 'w')
+    #writer = csv.writer(csvfile, delimiter=',', lineterminator='\n', quotechar='"')
+    #writer.writerow(["Date","Race","Position", "Trap", "GreyhoundName","SireName", "DamName",
+    #                 "Prize", "Weight", "WinTime", "By", "Going", "EstTime", "Spread","Grade", "Comm"])
+    # Get meeting details: Date, Location, Link to Results
     while(True):
         try:
             url = f"{baseUrl}?FromDate={startDate}&ToDate={endDate}&stadium={track}&page={pageresults}"
@@ -47,11 +64,17 @@ def getResults(startDate, endDate, track):
                 break
         except:
             break
-    # Get results of meetings
+    # Get race results of meetings and store to csv
     csvfile = open('race_results.csv', 'w')
     writer = csv.writer(csvfile, delimiter=',', lineterminator='\n', quotechar='"')
     writer.writerow(["Date", "Track","Location" ,"RaceTitle", "Distance", "Position", "Trap", "GreyhoundName", "SireName", "DamName",
                      "Prize", "Weight", "WinTime", "ByLenght", "Going", "EstTime", "Spread", "Grade", "Comm"])
+
+    # Looping location list and check for key in dictionary to extract value (used in the result request url)
+    # for ml in meetingLocation:
+        # if ml in meetingTrack:
+            # mt = meetingTrack[ml]
+
     for m, l in zip(meetingDate, meetingLocation):
         rurl = f"{baseUrl}/view-results/?track={track}&date={m}"
         print(rurl)
@@ -99,29 +122,5 @@ def getResults(startDate, endDate, track):
             time.sleep(2)
         else:
             print("Race title/table mismatch")
-        '''
-        rtables = rsoup.find_all("table")
-        resulttable = rtables[1]
-        rtrs = resulttable.find_all("tr")
-        for rows in rtrs[1:]:
-            cols = rows.find_all(['th', 'td'])  # find all the <th> or <td> columns inside each row
-            race = ""
-            position = cols[0].text
-            trap = cols[1].text
-            greyhoundName = cols[2].text
-            sireName = cols[3].text
-            damName = cols[4].text
-            prize = cols[5].text
-            weight = cols[6].text
-            winTime = cols[7].text
-            by = cols[8].text
-            going = cols[9].text
-            estTime = cols[10].text
-            spread = cols[11].text
-            grade = cols[12].text
-            comm = cols[13].text
-            writer.writerow([m, race, position, trap, greyhoundName, sireName, damName, prize,
-                             weight, winTime, by, going, estTime, spread, grade, comm])
-        time.sleep(2)
-        '''
+
 getResults(startDate, endDate, track)
